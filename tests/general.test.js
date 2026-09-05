@@ -11,7 +11,8 @@ import {
     elContains,
     arrayDiff,
     deepCopy,
-    uuidv4
+    uuidv4,
+    focus
 } from '../src/utils/general';
 
 import * as CookieConsent from "../src/index"
@@ -132,5 +133,33 @@ describe("Array/Object tests", () => {
         }
 
         expect(deepCopy(original)).toEqual(original);
+    });
+})
+
+describe("Focus behavior", () => {
+    it("Prevents host-page scrolling when focusing CookieConsent elements", () => {
+        const ccMain = createNode('div');
+        const element = createNode('span');
+        ccMain.id = 'cc-main';
+        appendChild(ccMain, element);
+        appendChild(document.body, ccMain);
+        const focusSpy = jest.spyOn(element, 'focus');
+
+        focus(element, true);
+
+        expect(focusSpy).toHaveBeenCalledWith({preventScroll: true});
+        expect(element.hasAttribute('tabindex')).toBe(false);
+        ccMain.remove();
+    });
+
+    it("Retains normal focus restoration for host-page elements", () => {
+        const element = createNode('button');
+        appendChild(document.body, element);
+        const focusSpy = jest.spyOn(element, 'focus');
+
+        focus(element);
+
+        expect(focusSpy).toHaveBeenCalledWith();
+        element.remove();
     });
 })

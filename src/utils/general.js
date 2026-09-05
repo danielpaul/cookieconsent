@@ -714,7 +714,12 @@ export const focus = (el, toggleTabIndex) => {
      */
     toggleTabIndex && (el.tabIndex = -1);
 
-    el.focus();
+    // Internal sentinel elements can scroll the host page before the modal CSS loads.
+    if (el.closest && el.closest('#cc-main')) {
+        el.focus({preventScroll: true});
+    } else {
+        el.focus();
+    }
 
     /**
      * Remove the `tabindex` attribute so
