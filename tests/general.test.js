@@ -162,4 +162,21 @@ describe("Focus behavior", () => {
         expect(focusSpy).toHaveBeenCalledWith();
         element.remove();
     });
+
+    it("Falls back when focus options are unsupported", () => {
+        const ccMain = createNode('div');
+        const element = createNode('span');
+        ccMain.id = 'cc-main';
+        appendChild(ccMain, element);
+        appendChild(document.body, ccMain);
+        const focusSpy = jest.spyOn(element, 'focus')
+            .mockImplementationOnce(() => { throw new TypeError('Focus options are unsupported'); })
+            .mockImplementation(() => {});
+
+        focus(element);
+
+        expect(focusSpy).toHaveBeenNthCalledWith(1, {preventScroll: true});
+        expect(focusSpy).toHaveBeenNthCalledWith(2);
+        ccMain.remove();
+    });
 })
